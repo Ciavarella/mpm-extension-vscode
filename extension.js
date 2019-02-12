@@ -13,16 +13,27 @@ let token = '';
 let counter = 0;
 let prevCount = 0;
 
+/**
+ * Adds one to the counter.
+ */
 myEmitter.on('keystroke', () => {
   counter++;
 });
 
+/**
+ * Removes one from the counter if the counter not is on 0.
+ */
 myEmitter.on('backspace', () => {
   if (counter !== 0) {
     counter = counter - 2;
   }
 });
 
+/**
+ * Compares the counter and the previous value.
+ * Checks if it should play or pause music.
+ * Calls the play or pause method.
+ */
 myEmitter.on('check', () => {
   if (counter == 1 && prevCount !== 2) {
     playMusic();
@@ -32,6 +43,9 @@ myEmitter.on('check', () => {
   }
 });
 
+/**
+ * Sets the position of the statusbar counter.
+ */
 const item = vscode.window.createStatusBarItem(
   vscode.StatusBarAlignment.Right,
   100
@@ -94,7 +108,7 @@ const checkInput = event => {
 /**
  * This method will decrement the counter by one every second.
  * Call an event emitter to check the time left.
- * Create statusbar with remaining time.
+ * Call the create statusbar method.
  */
 const decrementCounter = () => {
   prevCount = counter;
