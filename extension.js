@@ -48,10 +48,22 @@ function activate(context) {
    */
   myEmitter.on('check', () => {
     if (counter === 1 && prevCount !== 2) {
-      playMusic();
+      let expires = context.globalState.get('expires');
+      let now = Date.now() / 1000;
+      if (now > expires) {
+        requestNewToken();
+      } else {
+        playMusic();
+      }
     }
     if (counter === 0 && prevCount !== 0) {
-      pauseMusic();
+      let expires = context.globalState.get('expires');
+      let now = Date.now() / 1000;
+      if (now > expires) {
+        requestNewToken();
+      } else {
+        pauseMusic();
+      }
     }
   });
 
@@ -95,7 +107,7 @@ function activate(context) {
     })
       .then(res => res.json())
       .then(data => {
-        if (data.devices[0] == undefined) {
+        if (data.devices.length === 0) {
           let os = process.platform;
           let command = '';
           if (os === 'darwin') {
@@ -142,7 +154,7 @@ function activate(context) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(test)
-    }).then(res => console.log(res.status));
+    });
   };
 
   /**
@@ -182,7 +194,9 @@ function activate(context) {
       .then(data => data.json())
       .then(newToken => {
         token = newToken.acccess_token;
+        let now = Date.now() / 1000;
         context.globalState.update('api_key', token);
+        context.globalState.update('expires', now + 3600);
         checkPlaybackDevice();
         pauseMusic();
       })
@@ -222,7 +236,9 @@ function activate(context) {
           const refresh_token = str.slice(pos + 15);
           const access_token = str.slice(0, pos);
           token = access_token;
+          let now = Date.now() / 1000;
           context.globalState.update('api_key', token);
+          context.globalState.update('expires', now + 3600);
           context.globalState.update('refresh_key', refresh_token);
           checkPlaybackDevice();
           pauseMusic();
