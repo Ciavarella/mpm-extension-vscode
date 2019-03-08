@@ -33,7 +33,8 @@
   },
   "dependencies": {
     "dotenv": "^6.2.0",
-    "node-fetch": "^2.3.0"
+    "node-fetch": "^2.3.0",
+    "username": "^4.1.0"
   },
   "directories": {
     "test": "test"

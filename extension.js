@@ -3,6 +3,8 @@
  */
 const vscode = require('vscode');
 const fetch = require('node-fetch');
+const cp = require('child_process');
+const username = require('username');
 require('dotenv').config();
 const EventEmitter = require('events');
 
@@ -77,6 +79,75 @@ function activate(context) {
     }
   };
 
+  /**
+   * Checks if Spotify is open.
+   * Checks the OS of the computer and sets a exec command.
+   * Exec command starts Spotify.
+   */
+  const checkPlaybackDevice = () => {
+    const bearer = 'Bearer ' + token;
+    // @ts-ignore
+    fetch('https://api.spotify.com/v1/me/player/devices', {
+      method: 'GET',
+      headers: {
+        Authorization: bearer
+      }
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.devices[0] == undefined) {
+          let os = process.platform;
+          let command = '';
+          if (os === 'darwin') {
+            command = 'open -a spotify';
+          } else if (os === 'win32') {
+            let windowsUser = getWindowsUser();
+            command = `start C:\Users\\${windowsUser}\AppData\Roaming\Spotify\Spotify.exe`;
+          } else if (os === 'linux') {
+            command = 'spotify';
+          }
+          cp.exec(command, (err, stdout, stderr) => {
+            if (err) {
+              return;
+            }
+            checkPlaybackDevice();
+          });
+        } else {
+          let deviceId = data.devices[0].id;
+          activateSpotify(deviceId);
+        }
+      });
+  };
+
+  /**
+   * Gets the username of a Windows user.
+   */
+  const getWindowsUser = async () => {
+    return await username();
+  };
+
+  /**
+   * Initiates Spotify
+   */
+  const activateSpotify = deviceId => {
+    const bearer = 'Bearer ' + token;
+    let test = {
+      device_ids: [deviceId]
+    };
+    // @ts-ignore
+    fetch('https://api.spotify.com/v1/me/player', {
+      method: 'PUT',
+      headers: {
+        Authorization: bearer,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(test)
+    }).then(res => console.log(res.status));
+  };
+
+  /**
+   * Checks if the current token still is valid.
+   */
   const checkValidToken = () => {
     const bearer = 'Bearer ' + token;
     // @ts-ignore
@@ -87,12 +158,18 @@ function activate(context) {
         'Content-Type': 'application/json'
       }
     }).then(res => {
+      pauseMusic();
+      checkPlaybackDevice();
       if (res.status !== 200) {
         requestNewToken();
       }
     });
   };
 
+  /**
+   * Request a new accesstoken with the refreshtoken.
+   * Set the new acccesstoken in the global state.
+   */
   const requestNewToken = () => {
     let refreshKey = context.globalState.get('refresh_key');
     //@ts-ignore
@@ -103,9 +180,13 @@ function activate(context) {
       }
     )
       .then(data => data.json())
-      // update context api_key.
-      // set token to api_key.
-      .then(token => console.log(token.acccess_token));
+      .then(newToken => {
+        token = newToken.acccess_token;
+        context.globalState.update('api_key', token);
+        checkPlaybackDevice();
+        pauseMusic();
+      })
+      .catch(err => console.error(err));
   };
 
   /**
@@ -131,13 +212,21 @@ function activate(context) {
       .then(usertoken => {
         const str = usertoken;
         let pos = str.indexOf('?refresh_token=');
-        const refresh_token = str.slice(pos + 15);
-        const access_token = str.slice(0, pos);
-        token = access_token;
-        context.globalState.update('api_key', token);
-        context.globalState.update('refresh_key', refresh_token);
-        console.log('refreshTOKEN: ', refresh_token);
-        pauseMusic();
+        if (pos === -1) {
+          vscode.window.showInformationMessage(
+            'Could not use token, please retry'
+          );
+          requestSpotifyAccess();
+          showTokenPlaceholder();
+        } else {
+          const refresh_token = str.slice(pos + 15);
+          const access_token = str.slice(0, pos);
+          token = access_token;
+          context.globalState.update('api_key', token);
+          context.globalState.update('refresh_key', refresh_token);
+          checkPlaybackDevice();
+          pauseMusic();
+        }
       })
       //@ts-ignore
       .catch(err => console.log(err));
@@ -151,8 +240,8 @@ function activate(context) {
     if (event.contentChanges[0].text === '') {
       myEmitter.emit('backspace');
     }
-    myEmitter.emit('keystroke');
     myEmitter.emit('check');
+    myEmitter.emit('keystroke');
   };
 
   /**
