@@ -96,39 +96,39 @@ function activate(context) {
    * Checks the OS of the computer and sets a exec command.
    * Exec command starts Spotify.
    */
-  const checkPlaybackDevice = () => {
+  const checkPlaybackDevice = async () => {
     const bearer = 'Bearer ' + token;
     // @ts-ignore
-    fetch('https://api.spotify.com/v1/me/player/devices', {
+    let res = await fetch('https://api.spotify.com/v1/me/player/devices', {
       method: 'GET',
       headers: {
         Authorization: bearer
       }
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.devices.length === 0) {
-          let os = process.platform;
-          let command = '';
-          if (os === 'darwin') {
-            command = 'open -a spotify';
-          } else if (os === 'win32') {
-            let windowsUser = getWindowsUser();
-            command = `start C:\Users\\${windowsUser}\AppData\Roaming\Spotify\Spotify.exe`;
-          } else if (os === 'linux') {
-            command = 'spotify';
-          }
-          cp.exec(command, (err, stdout, stderr) => {
-            if (err) {
-              return;
-            }
-            checkPlaybackDevice();
-          });
-        } else {
-          let deviceId = data.devices[0].id;
-          activateSpotify(deviceId);
+    });
+    let data = await res.json();
+    if (data.devices.length === 0) {
+      let os = process.platform;
+      let command = '';
+      if (os === 'darwin') {
+        command = 'open -a spotify';
+      } else if (os === 'win32') {
+        let windowsUser = getWindowsUser();
+        command = `start C:\Users\\${windowsUser}\AppData\Roaming\Spotify\Spotify.exe`;
+      } else if (os === 'linux') {
+        command = 'spotify';
+      }
+      cp.exec(command, (err, stdout, stderr) => {
+        if (err) {
+          return;
         }
+        checkPlaybackDevice();
       });
+    } else if (data.devices[0].is_active !== true) {
+      let deviceId = data.devices[0].id;
+      activateSpotify(deviceId);
+    } else {
+      return;
+    }
   };
 
   /**
@@ -143,7 +143,7 @@ function activate(context) {
    */
   const activateSpotify = deviceId => {
     const bearer = 'Bearer ' + token;
-    let test = {
+    let device = {
       device_ids: [deviceId]
     };
     // @ts-ignore
@@ -153,54 +153,50 @@ function activate(context) {
         Authorization: bearer,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(test)
+      body: JSON.stringify(device)
     });
   };
 
   /**
    * Checks if the current token still is valid.
    */
-  const checkValidToken = () => {
+  const checkValidToken = async () => {
     const bearer = 'Bearer ' + token;
     // @ts-ignore
-    fetch('https://api.spotify.com/v1/me', {
+    let res = await fetch('https://api.spotify.com/v1/me', {
       method: 'GET',
       headers: {
         Authorization: bearer,
         'Content-Type': 'application/json'
       }
-    }).then(res => {
-      pauseMusic();
-      checkPlaybackDevice();
-      if (res.status !== 200) {
-        requestNewToken();
-      }
     });
+    if (res.status !== 200) {
+      requestNewToken();
+    }
+    checkPlaybackDevice();
+    pauseMusic();
   };
 
   /**
    * Request a new accesstoken with the refreshtoken.
    * Set the new acccesstoken in the global state.
    */
-  const requestNewToken = () => {
+  const requestNewToken = async () => {
     let refreshKey = context.globalState.get('refresh_key');
     //@ts-ignore
-    fetch(
+    let res = await fetch(
       `https://mpm-node-backend.herokuapp.com/refresh_token?refresh_token=${refreshKey}`,
       {
         method: 'GET'
       }
-    )
-      .then(data => data.json())
-      .then(newToken => {
-        token = newToken.acccess_token;
-        let now = Date.now() / 1000;
-        context.globalState.update('api_key', token);
-        context.globalState.update('expires', now + 3600);
-        checkPlaybackDevice();
-        pauseMusic();
-      })
-      .catch(err => console.error(err));
+    );
+    let data = await res.json();
+    token = data.acccess_token;
+    let now = Date.now() / 1000;
+    context.globalState.update('api_key', token);
+    context.globalState.update('expires', now + 3600);
+    checkPlaybackDevice();
+    pauseMusic();
   };
 
   /**
