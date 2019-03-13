@@ -185,7 +185,7 @@ function activate(context) {
     let refreshKey = context.globalState.get('refresh_key');
     //@ts-ignore
     let res = await fetch(
-      `https://mpm-node-backend.herokuapp.com/refresh_token?refresh_token=${refreshKey}`,
+      `https://mpm-node-backend.herokuapp.com/auth/refresh_token?refresh_token=${refreshKey}`,
       {
         method: 'GET'
       }
