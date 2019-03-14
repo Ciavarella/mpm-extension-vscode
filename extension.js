@@ -205,7 +205,7 @@ function activate(context) {
   const requestSpotifyAccess = () => {
     vscode.commands.executeCommand(
       'vscode.open',
-      vscode.Uri.parse('https://mpm-template.herokuapp.com/index.html')
+      vscode.Uri.parse('https://mpm-dashboard.herokuapp.com/auth/login')
     );
   };
 
