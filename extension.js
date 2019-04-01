@@ -264,7 +264,7 @@ function activate(context) {
         }
       })
       //@ts-ignore
-      .catch(err => console.log(err))
+      .catch(err => console.error(err))
   }
 
   /**
