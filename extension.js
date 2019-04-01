@@ -1,12 +1,12 @@
 /**
  * The module 'vscode' contains the VS Code extensibility API.
  */
-const vscode = require('vscode');
-const fetch = require('node-fetch');
-const cp = require('child_process');
-const username = require('username');
-require('dotenv').config();
-const EventEmitter = require('events');
+const vscode = require('vscode')
+const fetch = require('node-fetch')
+const cp = require('child_process')
+const username = require('username')
+require('dotenv').config()
+const EventEmitter = require('events')
 
 /**
  * This method is called when the extension is activated.
@@ -15,31 +15,35 @@ const EventEmitter = require('events');
  */
 function activate(context) {
   let disposable = vscode.commands.registerCommand('extension.mpm', function() {
-    vscode.window.showInformationMessage('Music Per Minute');
-  });
+    vscode.window.showInformationMessage('Music Per Minute')
+  })
 
   class MyEmitter extends EventEmitter {}
-  const myEmitter = new MyEmitter();
-
-  let token = '';
-  let counter = 0;
-  let prevCount = 0;
+  const myEmitter = new MyEmitter()
+  const baseUrl = 'http://localhost:8080'
+  let token = ''
+  let counter = 0
+  let prevCount = 0
+  let userTotalTime = 0
+  let pauseCount = 0
+  let sessionId = null
 
   /**
    * Adds one to the counter.
    */
   myEmitter.on('keystroke', () => {
-    counter++;
-  });
+    counter++
+    userTotalTime++
+  })
 
   /**
    * Removes one from the counter if the counter not is on 0.
    */
   myEmitter.on('backspace', () => {
     if (counter !== 0) {
-      counter = counter - 2;
+      counter = counter - 2
     }
-  });
+  })
 
   /**
    * Compares the counter and the previous value.
@@ -48,24 +52,24 @@ function activate(context) {
    */
   myEmitter.on('check', () => {
     if (counter === 1 && prevCount !== 2) {
-      let expires = context.globalState.get('expires');
-      let now = Date.now() / 1000;
+      let expires = context.globalState.get('expires')
+      let now = Date.now() / 1000
       if (now > expires) {
-        requestNewToken();
+        requestNewToken()
       } else {
-        playMusic();
+        playMusic()
       }
     }
     if (counter === 0 && prevCount !== 0) {
-      let expires = context.globalState.get('expires');
-      let now = Date.now() / 1000;
+      let expires = context.globalState.get('expires')
+      let now = Date.now() / 1000
       if (now > expires) {
-        requestNewToken();
+        requestNewToken()
       } else {
-        pauseMusic();
+        pauseMusic()
       }
     }
-  });
+  })
 
   /**
    * Sets the position of the statusbar counter.
@@ -73,7 +77,7 @@ function activate(context) {
   const item = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Right,
     100
-  );
+  )
 
   /**
    * Checks if there is a api key saved in globalstate.
@@ -81,15 +85,15 @@ function activate(context) {
    * Calls the checkValidToken to check if the token is valid.
    */
   const checkApiKey = () => {
-    let key = context.globalState.get('api_key');
+    let key = context.globalState.get('api_key')
     if (key === undefined) {
-      requestSpotifyAccess();
-      showTokenPlaceholder();
+      requestSpotifyAccess()
+      showTokenPlaceholder()
     } else {
-      token = key;
-      checkValidToken();
+      token = key
+      checkValidToken()
     }
-  };
+  }
 
   /**
    * Checks if Spotify is open.
@@ -97,55 +101,55 @@ function activate(context) {
    * Exec command starts Spotify.
    */
   const checkPlaybackDevice = async () => {
-    const bearer = 'Bearer ' + token;
+    const bearer = 'Bearer ' + token
     // @ts-ignore
     let res = await fetch('https://api.spotify.com/v1/me/player/devices', {
       method: 'GET',
       headers: {
         Authorization: bearer
       }
-    });
-    let data = await res.json();
+    })
+    let data = await res.json()
     if (data.devices.length === 0) {
-      let os = process.platform;
-      let command = '';
+      let os = process.platform
+      let command = ''
       if (os === 'darwin') {
-        command = 'open -a spotify';
+        command = 'open -a spotify'
       } else if (os === 'win32') {
-        let windowsUser = getWindowsUser();
-        command = `start C:\Users\\${windowsUser}\AppData\Roaming\Spotify\Spotify.exe`;
+        let windowsUser = getWindowsUser()
+        command = `start C:\Users\\${windowsUser}\AppData\Roaming\Spotify\Spotify.exe`
       } else if (os === 'linux') {
-        command = 'spotify';
+        command = 'spotify'
       }
       cp.exec(command, (err, stdout, stderr) => {
         if (err) {
-          return;
+          return
         }
-        checkPlaybackDevice();
-      });
+        checkPlaybackDevice()
+      })
     } else if (data.devices[0].is_active !== true) {
-      let deviceId = data.devices[0].id;
-      activateSpotify(deviceId);
+      let deviceId = data.devices[0].id
+      activateSpotify(deviceId)
     } else {
-      return;
+      return
     }
-  };
+  }
 
   /**
    * Gets the username of a Windows user.
    */
   const getWindowsUser = async () => {
-    return await username();
-  };
+    return await username()
+  }
 
   /**
    * Initiates Spotify
    */
   const activateSpotify = deviceId => {
-    const bearer = 'Bearer ' + token;
+    const bearer = 'Bearer ' + token
     let device = {
       device_ids: [deviceId]
-    };
+    }
     // @ts-ignore
     fetch('https://api.spotify.com/v1/me/player', {
       method: 'PUT',
@@ -154,14 +158,14 @@ function activate(context) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(device)
-    });
-  };
+    })
+  }
 
   /**
    * Checks if the current token still is valid.
    */
   const checkValidToken = async () => {
-    const bearer = 'Bearer ' + token;
+    const bearer = 'Bearer ' + token
     // @ts-ignore
     let res = await fetch('https://api.spotify.com/v1/me', {
       method: 'GET',
@@ -169,35 +173,53 @@ function activate(context) {
         Authorization: bearer,
         'Content-Type': 'application/json'
       }
-    });
+    })
     if (res.status !== 200) {
-      requestNewToken();
+      requestNewToken()
     }
-    checkPlaybackDevice();
-    pauseMusic();
-  };
+    checkPlaybackDevice()
+    pauseMusic()
+  }
 
   /**
    * Request a new accesstoken with the refreshtoken.
    * Set the new acccesstoken in the global state.
    */
   const requestNewToken = async () => {
-    let refreshKey = context.globalState.get('refresh_key');
+    let refreshKey = context.globalState.get('refresh_key')
     //@ts-ignore
     let res = await fetch(
       `https://mpm-node-backend.herokuapp.com/auth/refresh_token?refresh_token=${refreshKey}`,
       {
         method: 'GET'
       }
-    );
-    let data = await res.json();
-    token = data.acccess_token;
-    let now = Date.now() / 1000;
-    context.globalState.update('api_key', token);
-    context.globalState.update('expires', now + 3600);
-    checkPlaybackDevice();
-    pauseMusic();
-  };
+    )
+    let data = await res.json()
+    token = data.acccess_token
+    let now = Date.now() / 1000
+    context.globalState.update('api_key', token)
+    context.globalState.update('expires', now + 3600)
+    checkPlaybackDevice()
+    pauseMusic()
+  }
+
+  /**
+   * Gets the user and stores the user in globalState
+   */
+  const getUser = async () => {
+    const bearer = 'Bearer ' + token
+    // @ts-ignore
+    let res = await fetch('https://api.spotify.com/v1/me', {
+      method: 'GET',
+      headers: {
+        Authorization: bearer,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    let user = await res.json()
+    context.globalState.update('user', user)
+  }
 
   /**
    * Opens the Spotify helper to authenticate access
@@ -206,8 +228,8 @@ function activate(context) {
     vscode.commands.executeCommand(
       'vscode.open',
       vscode.Uri.parse('https://mpm-dashboard.herokuapp.com/auth/login')
-    );
-  };
+    )
+  }
 
   /**
    * Shows a inputfield where the user enters the Spotify token.
@@ -220,29 +242,30 @@ function activate(context) {
         prompt: 'Enter your Spotify token here'
       })
       .then(usertoken => {
-        const str = usertoken;
-        let pos = str.indexOf('?refresh_token=');
+        const str = usertoken
+        let pos = str.indexOf('?refresh_token=')
         if (pos === -1) {
           vscode.window.showInformationMessage(
             'Could not use token, please retry'
-          );
-          requestSpotifyAccess();
-          showTokenPlaceholder();
+          )
+          requestSpotifyAccess()
+          showTokenPlaceholder()
         } else {
-          const refresh_token = str.slice(pos + 15);
-          const access_token = str.slice(0, pos);
-          token = access_token;
-          let now = Date.now() / 1000;
-          context.globalState.update('api_key', token);
-          context.globalState.update('expires', now + 3600);
-          context.globalState.update('refresh_key', refresh_token);
-          checkPlaybackDevice();
-          pauseMusic();
+          const refresh_token = str.slice(pos + 15)
+          const access_token = str.slice(0, pos)
+          token = access_token
+          let now = Date.now() / 1000
+          context.globalState.update('api_key', token)
+          context.globalState.update('expires', now + 3600)
+          context.globalState.update('refresh_key', refresh_token)
+          getUser()
+          checkPlaybackDevice()
+          pauseMusic()
         }
       })
       //@ts-ignore
-      .catch(err => console.log(err));
-  };
+      .catch(err => console.log(err))
+  }
 
   /**
    * Will check if the key pressed is backspace.
@@ -250,11 +273,11 @@ function activate(context) {
    */
   const checkInput = event => {
     if (event.contentChanges[0].text === '') {
-      myEmitter.emit('backspace');
+      myEmitter.emit('backspace')
     }
-    myEmitter.emit('check');
-    myEmitter.emit('keystroke');
-  };
+    myEmitter.emit('check')
+    myEmitter.emit('keystroke')
+  }
 
   /**
    * This method will decrement the counter by one every second.
@@ -262,27 +285,28 @@ function activate(context) {
    * Call the create statusbar method.
    */
   const decrementCounter = () => {
-    prevCount = counter;
+    prevCount = counter
     if (counter !== 0) {
-      counter--;
+      counter--
     }
-    myEmitter.emit('check');
-    createStatusBarItem();
-  };
+    myEmitter.emit('check')
+    createStatusBarItem()
+  }
 
   /**
    * Creates the status bar timer and shows time left.
    */
   const createStatusBarItem = () => {
-    item.text = `${counter.toString()} seconds left`;
-    item.show();
-  };
+    item.text = `${counter.toString()} seconds left`
+    item.show()
+  }
 
   /**
    * Starts to play music on Spotify
    */
   const playMusic = () => {
-    const bearer = 'Bearer ' + token;
+    pauseCount++
+    const bearer = 'Bearer ' + token
     // @ts-ignore
     fetch('https://api.spotify.com/v1/me/player/play', {
       method: 'PUT',
@@ -290,14 +314,14 @@ function activate(context) {
         Authorization: bearer,
         'Content-Type': 'application/json'
       }
-    });
-  };
+    })
+  }
 
   /**
    * Pauses music on Spotify
    */
   const pauseMusic = () => {
-    const bearer = 'Bearer ' + token;
+    const bearer = 'Bearer ' + token
     // @ts-ignore
     fetch('https://api.spotify.com/v1/me/player/pause', {
       method: 'PUT',
@@ -305,19 +329,44 @@ function activate(context) {
         Authorization: bearer,
         'Content-Type': 'application/json'
       }
-    });
-  };
+    })
+  }
 
-  checkApiKey();
-  setInterval(decrementCounter, 1000);
-  vscode.workspace.onDidChangeTextDocument(checkInput);
-  context.subscriptions.push(disposable);
+  /**
+   * Sends data to the backend and stores it in the database
+   */
+  const sendData = async () => {
+    let user = context.globalState.get('user')
+    let data = {
+      sessionId: sessionId,
+      totalTime: userTotalTime,
+      pausedTimes: pauseCount,
+      user: user
+    }
+    //@ts-ignore
+    let res = await fetch(`${baseUrl}/extension`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+
+    let sessionData = await res.json()
+    sessionId = sessionData.session[0].id
+  }
+
+  checkApiKey()
+  setInterval(decrementCounter, 1000)
+  setInterval(sendData, 60000)
+  vscode.workspace.onDidChangeTextDocument(checkInput)
+  context.subscriptions.push(disposable)
 }
-exports.activate = activate;
+exports.activate = activate
 // this method is called when the extension is deactivated
 function deactivate() {}
 
 module.exports = {
   activate,
   deactivate
-};
+}
