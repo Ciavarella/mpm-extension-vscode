@@ -26,14 +26,15 @@ function activate(context) {
   let prevCount = 0
   let userTotalTime = 0
   let pauseCount = 0
+  let musicTime = 0
   let sessionId = null
+  let intervalId = null
 
   /**
    * Adds one to the counter.
    */
   myEmitter.on('keystroke', () => {
     counter++
-    userTotalTime++
   })
 
   /**
@@ -102,7 +103,6 @@ function activate(context) {
    */
   const checkPlaybackDevice = async () => {
     const bearer = 'Bearer ' + token
-    // @ts-ignore
     let res = await fetch('https://api.spotify.com/v1/me/player/devices', {
       method: 'GET',
       headers: {
@@ -150,7 +150,6 @@ function activate(context) {
     let device = {
       device_ids: [deviceId]
     }
-    // @ts-ignore
     fetch('https://api.spotify.com/v1/me/player', {
       method: 'PUT',
       headers: {
@@ -166,7 +165,6 @@ function activate(context) {
    */
   const checkValidToken = async () => {
     const bearer = 'Bearer ' + token
-    // @ts-ignore
     let res = await fetch('https://api.spotify.com/v1/me', {
       method: 'GET',
       headers: {
@@ -187,7 +185,6 @@ function activate(context) {
    */
   const requestNewToken = async () => {
     let refreshKey = context.globalState.get('refresh_key')
-    //@ts-ignore
     let res = await fetch(
       `https://mpm-node-backend.herokuapp.com/auth/refresh_token?refresh_token=${refreshKey}`,
       {
@@ -208,7 +205,6 @@ function activate(context) {
    */
   const getUser = async () => {
     const bearer = 'Bearer ' + token
-    // @ts-ignore
     let res = await fetch('https://api.spotify.com/v1/me', {
       method: 'GET',
       headers: {
@@ -263,7 +259,6 @@ function activate(context) {
           pauseMusic()
         }
       })
-      //@ts-ignore
       .catch(err => console.error(err))
   }
 
@@ -285,10 +280,12 @@ function activate(context) {
    * Call the create statusbar method.
    */
   const decrementCounter = () => {
+    userTotalTime++
     prevCount = counter
     if (counter !== 0) {
       counter--
     }
+
     myEmitter.emit('check')
     createStatusBarItem()
   }
@@ -303,11 +300,11 @@ function activate(context) {
 
   /**
    * Starts to play music on Spotify
+   * Calls the addMusicTime method to add one every second when music is playing.
    */
   const playMusic = () => {
-    pauseCount++
+    intervalId = setInterval(addMusicTime, 1000)
     const bearer = 'Bearer ' + token
-    // @ts-ignore
     fetch('https://api.spotify.com/v1/me/player/play', {
       method: 'PUT',
       headers: {
@@ -319,10 +316,12 @@ function activate(context) {
 
   /**
    * Pauses music on Spotify
+   * Clears interval on the addMusicTheme method.
    */
   const pauseMusic = () => {
+    clearInterval(intervalId)
+    pauseCount++
     const bearer = 'Bearer ' + token
-    // @ts-ignore
     fetch('https://api.spotify.com/v1/me/player/pause', {
       method: 'PUT',
       headers: {
@@ -333,6 +332,13 @@ function activate(context) {
   }
 
   /**
+   * Adds music to the played music counter
+   */
+  const addMusicTime = () => {
+    musicTime++
+  }
+
+  /**
    * Sends data to the backend and stores it in the database
    */
   const sendData = async () => {
@@ -340,10 +346,10 @@ function activate(context) {
     let data = {
       sessionId: sessionId,
       totalTime: userTotalTime,
+      musicTime: musicTime,
       pausedTimes: pauseCount,
       user: user
     }
-    //@ts-ignore
     let res = await fetch(`${baseUrl}/extension`, {
       method: 'POST',
       headers: {
