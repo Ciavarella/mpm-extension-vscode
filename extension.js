@@ -303,7 +303,7 @@ function activate(context) {
    * Calls the addMusicTime method to add one every second when music is playing.
    */
   const playMusic = () => {
-    intervalId = setInterval(addMusicTime, 1000)
+    startInterval.start()
     const bearer = 'Bearer ' + token
     fetch('https://api.spotify.com/v1/me/player/play', {
       method: 'PUT',
@@ -319,7 +319,7 @@ function activate(context) {
    * Clears interval on the addMusicTheme method.
    */
   const pauseMusic = () => {
-    clearInterval(intervalId)
+    startInterval.stop()
     pauseCount++
     const bearer = 'Bearer ' + token
     fetch('https://api.spotify.com/v1/me/player/pause', {
@@ -334,8 +334,15 @@ function activate(context) {
   /**
    * Adds music to the played music counter
    */
-  const addMusicTime = () => {
-    musicTime++
+  const startInterval = {
+    start: () => {
+      intervalId = setInterval(() => {
+        musicTime++
+      }, 1000)
+    },
+    stop: () => {
+      clearInterval(intervalId)
+    }
   }
 
   /**
@@ -350,6 +357,7 @@ function activate(context) {
       pausedTimes: pauseCount,
       user: user
     }
+
     let res = await fetch(`${baseUrl}/extension`, {
       method: 'POST',
       headers: {
