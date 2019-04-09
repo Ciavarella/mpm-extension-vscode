@@ -281,6 +281,7 @@ function activate(context) {
    */
   const decrementCounter = () => {
     userTotalTime++
+    console.log('totaltime: ', userTotalTime)
     prevCount = counter
     if (counter !== 0) {
       counter--
@@ -338,6 +339,7 @@ function activate(context) {
     start: () => {
       intervalId = setInterval(() => {
         musicTime++
+        console.log('musictime: ', musicTime)
       }, 1000)
     },
     stop: () => {
