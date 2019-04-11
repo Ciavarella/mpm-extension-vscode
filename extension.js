@@ -29,6 +29,8 @@ function activate(context) {
   let musicTime = 0
   let sessionId = null
   let intervalId = null
+  let keypressTime = 1
+  let hardMode = false
 
   /**
    * Adds one to the counter.
@@ -86,8 +88,7 @@ function activate(context) {
    * Calls the checkValidToken to check if the token is valid.
    */
   const checkApiKey = () => {
-    // let key = context.globalState.get('api_key')
-    let key = undefined
+    let key = context.globalState.get('api_key')
     if (key === undefined) {
       requestSpotifyAccess()
       showTokenPlaceholder()
@@ -335,7 +336,7 @@ function activate(context) {
   }
 
   /**
-   * Adds music to the played music counter
+   * Adds or stops the played music counter
    */
   const startInterval = {
     start: () => {
@@ -373,14 +374,44 @@ function activate(context) {
     sessionId = sessionData.session[0].id
   }
 
+  /**
+   * Gets the users settings by email based on the user in globalState.
+   * If the user has no settings it will default to the default values.
+   * */
+  const getUserSettings = async () => {
+    let user = context.globalState.get('user')
+
+    if (user !== undefined) {
+      let res = await fetch(`${baseUrl}/extension/settings`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          email: user.email
+        }
+      })
+
+      let settings = await res.json()
+      if (settings !== null) {
+        keypressTime = settings.settings.keypress
+        hardMode = settings.settings.hardcore
+      } else {
+        keypressTime = 1
+        hardMode = false
+      }
+    } else {
+      keypressTime = 1
+      hardMode = false
+    }
+  }
+
   checkApiKey()
+  getUserSettings()
   setInterval(decrementCounter, 1000)
   setInterval(sendData, 60000)
   vscode.workspace.onDidChangeTextDocument(checkInput)
   context.subscriptions.push(disposable)
 }
 exports.activate = activate
-// this method is called when the extension is deactivated
 function deactivate() {}
 
 module.exports = {
