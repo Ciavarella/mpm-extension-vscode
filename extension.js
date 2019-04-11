@@ -86,7 +86,8 @@ function activate(context) {
    * Calls the checkValidToken to check if the token is valid.
    */
   const checkApiKey = () => {
-    let key = context.globalState.get('api_key')
+    // let key = context.globalState.get('api_key')
+    let key = undefined
     if (key === undefined) {
       requestSpotifyAccess()
       showTokenPlaceholder()
@@ -201,7 +202,9 @@ function activate(context) {
   }
 
   /**
-   * Gets the user and stores the user in globalState
+   * Gets the user and stores the user in globalState.
+   * Creates the user in the database and stores the database id in globalState.
+   * This is to later be able to get the user settings.
    */
   const getUser = async () => {
     const bearer = 'Bearer ' + token
@@ -281,7 +284,6 @@ function activate(context) {
    */
   const decrementCounter = () => {
     userTotalTime++
-    console.log('totaltime: ', userTotalTime)
     prevCount = counter
     if (counter !== 0) {
       counter--
@@ -339,7 +341,6 @@ function activate(context) {
     start: () => {
       intervalId = setInterval(() => {
         musicTime++
-        console.log('musictime: ', musicTime)
       }, 1000)
     },
     stop: () => {
