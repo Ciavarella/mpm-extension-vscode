@@ -29,23 +29,28 @@ function activate(context) {
   let musicTime = 0
   let sessionId = null
   let intervalId = null
-  let keypressTime = 1
-  let hardMode = false
+  let keypressTime = 0
+  let hardMode = null
 
   /**
    * Adds one to the counter.
    */
   myEmitter.on('keystroke', () => {
-    counter++
+    counter = counter + keypressTime
   })
 
   /**
    * Removes one from the counter if the counter not is on 0.
    */
   myEmitter.on('backspace', () => {
+    if (hardMode === true) {
+      counter = 0
+    }
     if (counter !== 0) {
       counter = counter - 2
     }
+
+    console.log(counter)
   })
 
   /**
@@ -94,6 +99,7 @@ function activate(context) {
       showTokenPlaceholder()
     } else {
       token = key
+      getUserSettings()
       checkValidToken()
     }
   }
@@ -259,6 +265,7 @@ function activate(context) {
           context.globalState.update('expires', now + 3600)
           context.globalState.update('refresh_key', refresh_token)
           getUser()
+          getUserSettings()
           checkPlaybackDevice()
           pauseMusic()
         }
@@ -389,9 +396,10 @@ function activate(context) {
           email: user.email
         }
       })
-
       let settings = await res.json()
       if (settings !== null) {
+        context.globalState.update('keypress', settings.settings.keypress)
+        context.globalState.update('hardmode', settings.settings.hardcore)
         keypressTime = settings.settings.keypress
         hardMode = settings.settings.hardcore
       } else {
@@ -405,7 +413,6 @@ function activate(context) {
   }
 
   checkApiKey()
-  getUserSettings()
   setInterval(decrementCounter, 1000)
   setInterval(sendData, 60000)
   vscode.workspace.onDidChangeTextDocument(checkInput)
