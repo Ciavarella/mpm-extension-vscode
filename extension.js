@@ -233,7 +233,7 @@ function activate(context) {
   const requestSpotifyAccess = () => {
     vscode.commands.executeCommand(
       'vscode.open',
-      vscode.Uri.parse('https://mpm-dashboard.herokuapp.com/auth/login')
+      vscode.Uri.parse('https://ciavarella.dev/auth/login')
     )
   }
 
