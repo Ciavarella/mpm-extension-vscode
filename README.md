@@ -1,65 +1,27 @@
 # MPM README
 
-This is the README for your extension "MPM". After writing up a brief description, we recommend including the following sections.
+Mpm or Music Per Minute is a Visual Studio Code extention that will play or pause the music on Spotify based on how fast you type. For each character you type you will be granted 1 second of playtime on Spotify. If you sign up with Spotify you can go to your settings and change the the amount of seconds you get per keypress. If your time runs out your music will be paused. Don't worry, if you keep writing code the music will start to play again.
+
+#### Happy Coding!
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+Play and pause music based on your typing speed.
 
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+To activate the extension run mpm in the command palatte
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+You need to have Spotify installed on your device.
+
+To download Spotify you can go to: https://www.spotify.com
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+##### Value per keypress
 
-For example:
+To change this you need to go to the dashboard and change it on your settings.
 
-This extension contributes the following settings:
+##### Hard mode
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+If you enable this in the dashboard, when you press backspace the music will stop and your playtime starts over from 0
