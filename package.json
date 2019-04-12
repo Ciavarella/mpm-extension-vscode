@@ -15,11 +15,16 @@
     "onCommand:extension.mpm"
   ],
   "main": "./extension.js",
+  "icon": "./logo.png",
   "contributes": {
     "commands": [
       {
         "command": "extension.mpm",
         "title": "Music Per Minute"
+      },
+      {
+        "command": "extension.stop",
+        "title": "Stop MPM"
       }
     ]
   },
@@ -43,7 +48,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Ciavarella/mpm-extension-vscode.git"
+    "url": "https://github.com/Ciavarella/mpm-extension-vscode.git"
   },
   "keywords": [],
   "license": "ISC",

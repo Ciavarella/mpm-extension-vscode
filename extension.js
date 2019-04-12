@@ -7,6 +7,7 @@ const cp = require('child_process')
 const username = require('username')
 require('dotenv').config()
 const EventEmitter = require('events')
+let disposable
 
 /**
  * This method is called when the extension is activated.
@@ -14,8 +15,12 @@ const EventEmitter = require('events')
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
-  let disposable = vscode.commands.registerCommand('extension.mpm', function() {
+  disposable = vscode.commands.registerCommand('extension.mpm', function() {
     vscode.window.showInformationMessage('Music Per Minute')
+  })
+
+  let stop = vscode.commands.registerCommand('extension.stop', function() {
+    dispose()
   })
 
   class MyEmitter extends EventEmitter {}
@@ -425,8 +430,15 @@ function activate(context) {
   setInterval(sendData, 60000)
   vscode.workspace.onDidChangeTextDocument(checkInput)
   context.subscriptions.push(disposable)
+  context.subscriptions.push(stop)
 }
 exports.activate = activate
+
+function dispose() {
+  console.log('dispose')
+  disposable.dispose()
+}
+
 function deactivate() {}
 
 module.exports = {
