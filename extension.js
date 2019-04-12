@@ -47,10 +47,8 @@ function activate(context) {
       counter = 0
     }
     if (counter !== 0) {
-      counter = counter - 2
+      counter = counter - 1
     }
-
-    console.log(counter)
   })
 
   /**
@@ -68,6 +66,7 @@ function activate(context) {
         playMusic()
       }
     }
+
     if (counter === 0 && prevCount !== 0) {
       let expires = context.globalState.get('expires')
       let now = Date.now() / 1000
@@ -280,9 +279,10 @@ function activate(context) {
   const checkInput = event => {
     if (event.contentChanges[0].text === '') {
       myEmitter.emit('backspace')
+    } else {
+      myEmitter.emit('keystroke')
     }
     myEmitter.emit('check')
-    myEmitter.emit('keystroke')
   }
 
   /**
@@ -295,9 +295,10 @@ function activate(context) {
     prevCount = counter
     if (counter !== 0) {
       counter--
+    } else if (counter === 0) {
+      myEmitter.emit('check')
     }
 
-    myEmitter.emit('check')
     createStatusBarItem()
   }
 
