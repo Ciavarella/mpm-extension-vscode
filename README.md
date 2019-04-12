@@ -14,7 +14,7 @@ To activate the extension run mpm in the command palatte
 
 You need to have Spotify installed on your device.
 
-To download Spotify you can go to: https://www.spotify.com
+To download Spotify, click here: [Spotify](https://www.spotify.com 'Spotify')
 
 ## Extension Settings
 
