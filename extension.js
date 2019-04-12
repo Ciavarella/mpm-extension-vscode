@@ -31,6 +31,7 @@ function activate(context) {
   let intervalId = null
   let keypressTime = 0
   let hardMode = null
+  let isPlaying = false
 
   /**
    * Adds one to the counter.
@@ -57,7 +58,9 @@ function activate(context) {
    * Calls the play or pause method.
    */
   myEmitter.on('check', () => {
-    if (counter === 1 && prevCount !== 2) {
+    if (counter === 0 && prevCount === 0) {
+      return
+    } else if (counter > 0 && prevCount < counter) {
       let expires = context.globalState.get('expires')
       let now = Date.now() / 1000
       if (now > expires) {
@@ -65,9 +68,7 @@ function activate(context) {
       } else {
         playMusic()
       }
-    }
-
-    if (counter === 0 && prevCount !== 0) {
+    } else if (counter === 0 && counter < prevCount) {
       let expires = context.globalState.get('expires')
       let now = Date.now() / 1000
       if (now > expires) {
@@ -295,7 +296,8 @@ function activate(context) {
     prevCount = counter
     if (counter !== 0) {
       counter--
-    } else if (counter === 0) {
+    }
+    if (counter === 0) {
       myEmitter.emit('check')
     }
 
@@ -315,6 +317,9 @@ function activate(context) {
    * Calls the addMusicTime method to add one every second when music is playing.
    */
   const playMusic = () => {
+    if (isPlaying === true) {
+      return
+    }
     startInterval.start()
     const bearer = 'Bearer ' + token
     fetch('https://api.spotify.com/v1/me/player/play', {
@@ -324,6 +329,7 @@ function activate(context) {
         'Content-Type': 'application/json'
       }
     })
+    isPlaying = true
   }
 
   /**
@@ -341,6 +347,7 @@ function activate(context) {
         'Content-Type': 'application/json'
       }
     })
+    isPlaying = false
   }
 
   /**
