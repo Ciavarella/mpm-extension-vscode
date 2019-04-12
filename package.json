@@ -15,7 +15,7 @@
     "onCommand:extension.mpm"
   ],
   "main": "./extension.js",
-  "icon": "/logo.png",
+  "icon": "logo.png",
   "contributes": {
     "commands": [
       {
