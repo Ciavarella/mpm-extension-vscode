@@ -20,7 +20,7 @@ function activate(context) {
 
   class MyEmitter extends EventEmitter {}
   const myEmitter = new MyEmitter()
-  const baseUrl = 'http://localhost:8080'
+  const baseUrl = 'https://mpm-node-backend.herokuapp.com'
   let token = ''
   let counter = 0
   let prevCount = 0
@@ -194,7 +194,7 @@ function activate(context) {
   const requestNewToken = async () => {
     let refreshKey = context.globalState.get('refresh_key')
     let res = await fetch(
-      `https://mpm-node-backend.herokuapp.com/auth/refresh_token?refresh_token=${refreshKey}`,
+      `${baseUrl}/auth/refresh_token?refresh_token=${refreshKey}`,
       {
         method: 'GET'
       }
