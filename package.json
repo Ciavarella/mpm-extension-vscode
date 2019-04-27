@@ -80,7 +80,10 @@
     "type": "git",
     "url": "https://github.com/Ciavarella/mpm-extension-vscode.git"
   },
-  "keywords": [],
+  "keywords": [
+    "Spotify",
+    "Music"
+  ],
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Ciavarella/mpm-extension-vscode/issues"
