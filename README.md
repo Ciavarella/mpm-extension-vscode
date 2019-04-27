@@ -10,9 +10,15 @@ Mpm or Music Per Minute is a Visual Studio Code extention that will play or paus
 
 ## Commands
 
-To start the command you need to type:
+To start the extension you need to type:
 
 ### >mpm
+
+in the command palette.
+
+To stop the extension you need to type:
+
+### >stop
 
 in the command palette.
 
@@ -37,3 +43,13 @@ To change this you need to go to the dashboard and change it on your settings.
 ##### Hard mode
 
 If you enable this in the dashboard, when you press backspace the music will stop and your playtime starts over from 0
+
+## New features
+
+#### Stop Command
+
+Implemented a stop method for the extension. See commands on how to do this.
+
+#### Settings
+
+You can now edit your setting directly in Vs Code.

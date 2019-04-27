@@ -356,17 +356,9 @@ export default class MusicPerMinute {
       if (settings !== null) {
         this.keypressTime = settings.settings.keypress;
         this.hardMode = settings.settings.hardcore;
-
-        this.ctx.globalState.update('hardmode', this.hardMode);
-        this.ctx.globalState.update('keypress', this.keypressTime);
-      } else {
-        this.keypressTime = 1;
-        this.hardMode = false;
-      }
-    } else {
-      this.keypressTime = 1;
-      this.hardMode = false;
-    }
+        vscode.workspace.getConfiguration('mpm').update('keypress', settings.settings.keypress);
+        vscode.workspace.getConfiguration('mpm').update('hardMode', settings.settings.hardcore);
+      } 
   }
 
   /**
