@@ -14,23 +14,77 @@
   "activationEvents": [
     "onCommand:extension.mpm"
   ],
-  "main": "./extension.js",
+  "main": "./out/extension.js",
   "icon": "logo.png",
   "contributes": {
     "commands": [
       {
         "command": "extension.mpm",
         "title": "Music Per Minute"
+      },
+      {
+        "command": "extension.mpm.stop",
+        "title": "Stop Music Per Minute"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Music per minute",
+      "properties": {
+        "mpm.enabled": {
+          "default": false,
+          "type": "boolean",
+          "description": "Enable to activate Music per minute!"
+        },
+        "mpm.api_key": {
+          "default": "",
+          "type": "string",
+          "description": "Music per minute API key!"
+        },
+        "mpm.refresh_token": {
+          "default": "",
+          "type": "string",
+          "description": "Music per minute API refresh token!"
+        },
+        "mpm.expires": {
+          "default": 0,
+          "type": "number",
+          "description": "Music per minute API key expiry!"
+        },
+        "mpm.hardMode": {
+          "default": false,
+          "type": "boolean",
+          "description": "Music per minute HARDMODE!!"
+        },
+        "mpm.user": {
+          "default": {},
+          "type": "object",
+          "description": "Music per minute User data!!"
+        },
+        "mpm.keypress": {
+          "default": 0,
+          "type": "number",
+          "description": "Music per minute Keypress setting!!"
+        }
+      }
+    }
   },
   "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
     "postinstall": "node ./node_modules/vscode/bin/install",
-    "test": "node ./node_modules/vscode/bin/test"
+    "test": "npm run compile && node ./node_modules/vscode/bin/test"
   },
   "devDependencies": {
+    "@types/dotenv": "^6.1.1",
     "@types/mocha": "^2.2.42",
-    "@types/node": "^8.10.45",
+    "@types/node": "^10.12.21",
+    "@types/node-fetch": "^2.3.2",
+    "@types/username": "^3.0.0",
+    "prettier": "^1.16.4",
+    "prettier-tslint": "^0.4.2",
+    "tslint": "^5.12.1",
+    "tslint-config-prettier": "^1.17.0",
     "typescript": "^3.4.3",
     "vscode": "^1.1.33"
   },
