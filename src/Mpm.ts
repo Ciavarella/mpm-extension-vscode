@@ -111,9 +111,10 @@ export default class MusicPerMinute {
     } else {
       this.token = key as any;
 
-      this.getUserSettings();
       this.checkValidToken();
+      this.getUserSettings();
     }
+    this.requestNewToken();
   }
 
   /**
@@ -232,7 +233,7 @@ export default class MusicPerMinute {
     this.token = data.acccess_token;
     const now = Date.now() / 1000;
 
-    this.ctx.globalState.update('api_key', this.token);
+    this.ctx.globalState.update('api_key', data.acccess_token);
     this.ctx.globalState.update('expires', now + 3600);
 
     this.checkPlaybackDevice();
@@ -353,7 +354,7 @@ export default class MusicPerMinute {
 
       const settings = await res.json();
 
-      if (settings !== null) {
+      if (settings.settings !== null) {
         this.keypressTime = settings.settings.keypress;
         this.hardMode = settings.settings.hardcore;
         vscode.workspace
