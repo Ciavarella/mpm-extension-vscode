@@ -1,7 +1,3 @@
-# Note
-
-This version is only in beta and is not complete yet.
-
 # MPM README
 
 Mpm or Music Per Minute is a Visual Studio Code extention that will play or pause the music on Spotify based on how fast you type. For each character you type you will be granted 1 second of playtime on Spotify. If you sign up with Spotify you can go to your settings and change the the amount of seconds you get per keypress. If your time runs out your music will be paused. Don't worry, if you keep writing code the music will start to play again.
@@ -53,3 +49,7 @@ Implemented a stop method for the extension. See commands on how to do this.
 #### Settings
 
 You can now edit your setting directly in Vs Code.
+
+#### Bonus Feature
+
+This extension also works with Live Share from Microsoft.
