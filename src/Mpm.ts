@@ -80,6 +80,9 @@ export default class MusicPerMinute {
    * Starts timer and calls checkApiKey method.
    */
   public init(): void {
+    const config = vscode.workspace.getConfiguration('mpm');
+    this.keypressTime = config.keypress;
+    this.hardMode = config.hardMode;
     this.setupEventListeners();
 
     this.checkApiKey();
@@ -87,7 +90,6 @@ export default class MusicPerMinute {
 
     this.startTimer();
     this.startDataSend();
-    // this.sendDataTimer = setInterval(this.sendData, 60000);
   }
 
   public onDidChangeConfiguration(): void {
@@ -516,7 +518,9 @@ export default class MusicPerMinute {
     clearInterval(this.intervalId);
     clearInterval(this.decrementTimer);
     clearInterval(this.sendDataTimer);
-    this.item.dispose();
+    this.item.text = '';
+    this.item.hide();
+    this.counter = 0;
   }
 
   private setupEventListeners(): void {

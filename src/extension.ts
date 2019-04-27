@@ -41,5 +41,6 @@ export function activate(context: vscode.ExtensionContext) {
  */
 export function deactivate() {
   Mpm.dispose();
+  vscode.workspace.getConfiguration('mpm').update('enabled', false);
   enabled = false;
 }
