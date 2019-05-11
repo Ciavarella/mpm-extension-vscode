@@ -105,7 +105,7 @@ export default class MusicPerMinute {
   public async checkApiKey(): Promise<void> {
     const key = await vscode.workspace.getConfiguration('mpm').get('api_key');
 
-    if (key === undefined) {
+    if (key === '') {
       this.requestSpotifyAccess();
       this.showTokenPlaceholder();
     } else {
@@ -305,10 +305,10 @@ export default class MusicPerMinute {
           this.ctx.globalState.update('expires', now + 3600);
           vscode.workspace
             .getConfiguration('mpm')
-            .update('api_key', accessToken);
+            .update('api_key', accessToken, true);
           vscode.workspace
             .getConfiguration('mpm')
-            .update('refresh_key', refreshToken);
+            .update('refresh_key', refreshToken, true);
 
           this.getUser();
           this.getUserSettings();
@@ -386,7 +386,7 @@ export default class MusicPerMinute {
     this.prevCount = this.counter;
 
     if (this.counter !== 0) {
-      this.counter--;
+      this.counter = this.counter--;
     }
 
     if (this.counter === 0) {
