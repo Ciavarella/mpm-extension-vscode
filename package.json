@@ -2,7 +2,7 @@
   "name": "mpm",
   "displayName": "Music Per Minute",
   "description": "Plays music based on how fast you type",
-  "version": "1.1.8",
+  "version": "1.1.9",
   "publisher": "Victor",
   "author": "",
   "engines": {
