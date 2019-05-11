@@ -219,7 +219,7 @@ export default class MusicPerMinute {
    * Set the new acccesstoken in the config.
    */
   public async requestNewToken(): Promise<void> {
-    const refreshKey = vscode.workspace
+    const refreshKey = await vscode.workspace
       .getConfiguration('mpm')
       .get('refresh_key');
 
