@@ -103,7 +103,7 @@ export default class MusicPerMinute {
    * Calls the checkValidToken to check if the token is valid.
    */
   public async checkApiKey(): Promise<void> {
-    const key = await vscode.workspace.getConfiguration('mpm').get('api_key');
+    const key = await this.ctx.globalState.get('api_key');
 
     if (key === '' || undefined) {
       this.requestSpotifyAccess();
@@ -235,9 +235,7 @@ export default class MusicPerMinute {
     this.token = data.acccess_token;
     const now = Date.now() / 1000;
 
-    vscode.workspace
-      .getConfiguration('mpm')
-      .update('api_key', data.acccess_token);
+    this.ctx.globalState.update('api_key', data.acccess_token);
     this.ctx.globalState.update('expires', now + 3600);
 
     this.checkPlaybackDevice();
@@ -303,12 +301,8 @@ export default class MusicPerMinute {
           const now = Date.now() / 1000;
 
           this.ctx.globalState.update('expires', now + 3600);
-          vscode.workspace
-            .getConfiguration('mpm')
-            .update('api_key', accessToken);
-          vscode.workspace
-            .getConfiguration('mpm')
-            .update('refresh_key', refreshToken);
+          this.ctx.globalState.update('api_key', this.token);
+          this.ctx.globalState.update('refresh_token', refreshToken);
 
           this.getUser();
           this.getUserSettings();
