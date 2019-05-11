@@ -105,7 +105,7 @@ export default class MusicPerMinute {
   public async checkApiKey(): Promise<void> {
     const key = await vscode.workspace.getConfiguration('mpm').get('api_key');
 
-    if (key === '') {
+    if (key === '' || undefined) {
       this.requestSpotifyAccess();
       this.showTokenPlaceholder();
     } else {
