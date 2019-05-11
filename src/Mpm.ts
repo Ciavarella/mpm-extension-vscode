@@ -386,7 +386,7 @@ export default class MusicPerMinute {
     this.prevCount = this.counter;
 
     if (this.counter !== 0) {
-      this.counter = this.counter--;
+      this.counter--;
     }
 
     if (this.counter === 0) {
