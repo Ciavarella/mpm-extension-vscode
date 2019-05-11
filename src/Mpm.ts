@@ -305,10 +305,10 @@ export default class MusicPerMinute {
           this.ctx.globalState.update('expires', now + 3600);
           vscode.workspace
             .getConfiguration('mpm')
-            .update('api_key', accessToken, true);
+            .update('api_key', accessToken);
           vscode.workspace
             .getConfiguration('mpm')
-            .update('refresh_key', refreshToken, true);
+            .update('refresh_key', refreshToken);
 
           this.getUser();
           this.getUserSettings();
