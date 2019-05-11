@@ -44,16 +44,6 @@
           "default": 2,
           "type": "number",
           "description": "Amount of seconds / keypress"
-        },
-        "mpm.api_key": {
-          "default": "",
-          "type": "string",
-          "description": "Your Api key"
-        },
-        "mpm.refresh_key": {
-          "default": "",
-          "type": "string",
-          "description": "Your refresh token"
         }
       }
     }

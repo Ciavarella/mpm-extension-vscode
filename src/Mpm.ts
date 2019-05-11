@@ -105,7 +105,7 @@ export default class MusicPerMinute {
   public async checkApiKey(): Promise<void> {
     const key = await this.ctx.globalState.get('api_key');
 
-    if (key === '' || undefined) {
+    if (key === undefined) {
       this.requestSpotifyAccess();
       this.showTokenPlaceholder();
     } else {
